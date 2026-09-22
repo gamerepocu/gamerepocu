@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+~$*
+
+# Original documents are distributed as GitHub release downloads.
+documents/
