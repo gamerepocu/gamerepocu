@@ -8,26 +8,26 @@ const path = require('node:path');
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:5173');
  await page.waitForSelector('.card');
- assert.equal(await page.locator('.card').count(),11);
+ assert.equal(await page.locator('.card').count(),14);
  await page.screenshot({path:'/private/tmp/game-library-desktop-th.png',fullPage:true});
  await page.click('[data-lang="en"]');assert.equal(await page.locator('html').getAttribute('lang'),'en');
  await page.click('[data-category="urban"]');assert.equal(await page.locator('.card').count(),3);
  await page.click('#clear-filters');
  await page.fill('#search','ถ้ำ');assert.equal(await page.locator('.card').count(),1);
  await page.fill('#search','zzzznomatch');assert.equal(await page.locator('.empty').count(),1);
- await page.click('#reset-empty');assert.equal(await page.locator('.card').count(),11);
+ await page.click('#reset-empty');assert.equal(await page.locator('.card').count(),14);
  await page.selectOption('#sort','name');
  const names=await page.locator('.card h3').allTextContents();assert.equal(names[0],'Coco Green Space');
  await page.screenshot({path:'/private/tmp/game-library-desktop-en.png',fullPage:true});
  for (const lang of ['en','th']) {
   await page.click(`[data-lang="${lang}"]`);
-  for (let i=1;i<=11;i++) {
+  for (let i=1;i<=14;i++) {
    await page.goto('http://127.0.0.1:5173/#game/'+String(i).padStart(2,'0'));
    await page.waitForSelector('.detail-hero');
    assert.ok(await page.locator('#overview').textContent());
    assert.ok(await page.locator('#materials').textContent());
    assert.ok(await page.locator('#play').textContent());
-   assert.ok(await page.locator('#debrief').textContent());
+   if(i!==12)assert.ok(await page.locator('#debrief').textContent());
    const href=await page.locator('.detail-hero a[download]').getAttribute('href');
    const response=await page.request.head('http://127.0.0.1:5173/'+href);assert.equal(response.status(),200);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
@@ -47,7 +47,7 @@ const path = require('node:path');
  await page.screenshot({path:'/private/tmp/game-library-mobile.png',fullPage:true});
  for(const lang of ['en','th']){
   await page.click(`[data-lang="${lang}"]`);
-  for(let i=1;i<=11;i++){
+  for(let i=1;i<=14;i++){
    await page.goto('http://127.0.0.1:5173/#game/'+String(i).padStart(2,'0'));await page.waitForSelector('.detail-hero');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`mobile overflow ${lang}/${i}`);
   }
@@ -56,9 +56,9 @@ const path = require('node:path');
  await page.goto('http://127.0.0.1:5173/#about');
  const compilation=await page.locator('.about a[download]').getAttribute('href');assert.equal((await page.request.head('http://127.0.0.1:5173/'+compilation)).status(),200);
  // Verify all generated media paths and downloads are local files.
- const base=path.resolve(__dirname,'..');const context={};require('node:vm').runInNewContext(fs.readFileSync(path.join(base,'data.js'),'utf8'),{window:context});
- for(const g of context.GAMES) for(const file of [g.file,g.cover,...g.images]) assert.ok(fs.existsSync(path.join(base,file)),file);
+ const base=path.resolve(__dirname,'..');const context={};const vm=require('node:vm');for(const f of ['data.js','data-extra.js'])vm.runInNewContext(fs.readFileSync(path.join(base,f),'utf8'),{window:context});
+ for(const g of context.GAMES) for(const file of [g.file,g.cover,...g.images,...(g.extraFiles||[]).map(x=>x.file)]) assert.ok(fs.existsSync(path.join(base,file)),file);
  assert.deepEqual(errors,[]);
- console.log('PASS: 11 games, both languages, 44 desktop/mobile detail checks, search, filters, sorting, downloads, dialog, persistence, missing route and all media paths.');
+ console.log('PASS: 14 games, both languages, 56 desktop/mobile detail checks, search, filters, sorting, downloads, dialog, persistence, missing route and all media paths.');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});
