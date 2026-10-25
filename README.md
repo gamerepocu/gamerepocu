@@ -28,6 +28,8 @@ This is a repository of facilitated educational games, not digital recreations o
 - `index.html`, `styles.css`, `app.js`: website interface.
 - `content-en.json`: editable English guides and catalog metadata.
 - `data.js`: generated bilingual website data.
+- `data-extra.js`: games added after the original build: 12 Toxic Game (English guide), 13 ECOSY RICE and 14 Nan-Ricey (Thai project reports). Written by hand because their sources do not follow the Thai template; `build.py` does not touch it. Their images are named `toxic-*`, `ecosy-*` and `nanricey-*` in `assets/`.
+- `downloads/`: source documents for `data-extra.js` games. Unlike `documents/`, these are committed and served directly by GitHub Pages.
 - `source-data.json`: extracted source paragraphs and image inventory.
 - `assets/`: original extracted media and optimized catalog thumbnails.
 - `documents/`: copies of the supplied Word documents.
